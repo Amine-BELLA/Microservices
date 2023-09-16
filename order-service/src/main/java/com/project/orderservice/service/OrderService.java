@@ -6,12 +6,9 @@ import com.project.orderservice.model.Order;
 import com.project.orderservice.model.OrderItems;
 import com.project.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +18,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final WebClient.Builder webClientBuilder;
     public void placeOrder(OrderDto orderDto) throws Exception{
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
@@ -29,12 +27,10 @@ public class OrderService {
 
         //Check if the order is ok in the inventory service  before
         //accepting the order
-        WebClient webClient = WebClient.builder()
-                .baseUrl("http://localhost:8082/")
-                        .build();
-        Boolean isOrderOk = webClient
+
+        Boolean isOrderOk = webClientBuilder.build()
                 .post()
-                .uri("api/inventory/verifyOrder")
+                .uri("http://inventory-service/api/inventory/verifyOrder")
                 .body(BodyInserters.fromValue(orderItems))
                 .retrieve().bodyToMono(Boolean.class).block();
 
