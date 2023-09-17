@@ -6,6 +6,7 @@ import com.project.inventoryservice.repository.InventoryRepository;
 import com.project.inventoryservice.sdk.Order;
 import com.project.inventoryservice.sdk.OrderItems;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,7 +32,11 @@ public class InventoryService {
         return true;
     }
 
+    @SneakyThrows
     public Boolean isOrderOk(List<OrderItems> orders) {
+        log.info("Timeout started");
+        Thread.sleep(10000);
+        log.info("Timeout ended");
         if (orders.isEmpty()) {
             throw new IllegalArgumentException("Order cannot be Empty!");
         }

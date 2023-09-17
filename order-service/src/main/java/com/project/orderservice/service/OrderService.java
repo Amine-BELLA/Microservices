@@ -23,11 +23,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
 
-    @SneakyThrows
+
     public String placeOrder(OrderDto orderDto) {
-        log.info("Timeout started");
-        Thread.sleep(10000);
-        log.info("Timeout ended");
         Order order = new Order();
         order.setOrderNumber(UUID.randomUUID().toString());
         List<OrderItems> orderItems = orderDto.getOrderItemsDto().stream().map(this::mapToOrderItems).toList();
