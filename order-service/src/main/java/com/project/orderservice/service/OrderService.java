@@ -4,10 +4,13 @@ import com.project.orderservice.dto.OrderDto;
 import com.project.orderservice.dto.OrderItemsDto;
 import com.project.orderservice.model.Order;
 import com.project.orderservice.model.OrderItems;
+import com.project.orderservice.model.OrderPlacedEvent;
 import com.project.orderservice.repository.OrderRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +25,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClientBuilder;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
 
     public String placeOrder(OrderDto orderDto) {
@@ -43,6 +47,7 @@ public class OrderService {
             return "The ordered products are out of stock!";
         }
         orderRepository.save(order);
+        kafkaTemplate.send("notificationTopic", new OrderPlacedEvent(order.getOrderNumber()));
         return "Order placed Successfully!";
     }
 
@@ -53,4 +58,5 @@ public class OrderService {
                 .quantity(orderItemsDto.getQuantity())
                 .build();
     }
+
 }
